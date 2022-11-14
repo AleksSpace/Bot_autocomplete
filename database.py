@@ -1,8 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date
-from sqlalchemy.orm import Session, declared_attr, declarative_base
-
 import datetime
 
+from sqlalchemy import Column, Date, Integer, String, create_engine
+from sqlalchemy.orm import Session, declarative_base, declared_attr
 
 engine = create_engine("sqlite:///autocomplete.db", echo=True)
 session = Session(engine)

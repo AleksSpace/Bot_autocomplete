@@ -1,36 +1,27 @@
-import telebot
-import os
 import datetime
 import logging
+import os
 from logging.handlers import RotatingFileHandler
-
-from dotenv import load_dotenv
-
-from database import adding_data_database
-
 from time import sleep
 
-from webdriver_manager.chrome import ChromeDriverManager
-
+import telebot
+from dotenv import load_dotenv
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver import ActionChains
 from selenium.webdriver.support.select import Select
-
-from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
-from validate_email import validate_email
+from sqlalchemy.orm import Session
 from telebot import types
+from validate_email import validate_email
+from webdriver_manager.chrome import ChromeDriverManager
 
-from database import User
-from constants import (START_MESSAGE,
-                       PAUSE_DURATION_SECONDS,
-                       LOG_DEBUG_BOT_MESSAGE,
-                       LOG_DEBUG_BOT_GET_MESSAGE,
-                       LOG_DEBUG_BOT_ERROE_MESSAGE,
-                       LOG_DEBUG_BOT_ERROR_OPEN_FILE)
-
+from constants import (LOG_DEBUG_BOT_ERROE_MESSAGE,
+                       LOG_DEBUG_BOT_ERROR_OPEN_FILE,
+                       LOG_DEBUG_BOT_GET_MESSAGE, LOG_DEBUG_BOT_MESSAGE,
+                       PAUSE_DURATION_SECONDS, START_MESSAGE)
+from database import User, adding_data_database
 
 load_dotenv()
 
@@ -69,8 +60,8 @@ def start(message):
     logger.info(f"{LOG_DEBUG_BOT_MESSAGE}'{message.text}'")
     try:
         bot.send_message(message.chat.id, START_MESSAGE)
-    except Exception:
-        logger.error(f"{LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
+    except TypeError as error:
+        logger.error(f"{error}: {LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
     send = bot.send_message(message.chat.id, "Напишите ваше имя")
     bot.register_next_step_handler(send, get_user_first_name)
 
@@ -86,8 +77,8 @@ def get_user_first_name(message):
     logger.info(f"{LOG_DEBUG_BOT_MESSAGE}'{message.text}'")
     try:
         bot.register_next_step_handler(send, get_user_last_name)
-    except Exception:
-        logger.error(f"{LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
+    except TypeError as error:
+        logger.error(f"{error} {LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
 
 
 @bot.message_handler(content_types=["text"])
@@ -102,8 +93,8 @@ def get_user_last_name(message):
     )
     try:
         bot.register_next_step_handler(send, get_user_email)
-    except Exception:
-        logger.error(f"{LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
+    except TypeError as error:
+        logger.error(f"{error} {LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
 
 
 @bot.message_handler(content_types=["text"])
@@ -123,8 +114,8 @@ def get_user_email(message):
     send = bot.send_message(message.chat.id, "Напишите ваш номер телефона")
     try:
         bot.register_next_step_handler(send, get_user_phone)
-    except Exception:
-        logger.error(f"{LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
+    except TypeError as error:
+        logger.error(f"{error} {LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
 
 
 @bot.message_handler(content_types=["text"])
@@ -140,8 +131,8 @@ def get_user_phone(message):
     )
     try:
         bot.register_next_step_handler(send, get_user_date)
-    except Exception:
-        logger.error(f"{LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
+    except TypeError as error:
+        logger.error(f"{error} {LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
 
 
 @bot.message_handler(content_types=["text"])
@@ -168,8 +159,8 @@ def get_user_date(message):
     )
     try:
         bot.register_next_step_handler(send, autocomplete)
-    except Exception:
-        logger.error(f"{LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
+    except TypeError as error:
+        logger.error(f"{error} {LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
 
 
 @bot.message_handler(commands=["Ок"])
@@ -339,7 +330,7 @@ def autocomplete(message):
     try:
         with open(NAME_SCREEN, "rb") as f:
             bot.send_photo(message.chat.id, f)
-    except Exception:
+    except TypeError as error:
         logger.error(LOG_DEBUG_BOT_ERROR_OPEN_FILE)
 
 

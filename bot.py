@@ -62,6 +62,7 @@ def start(message):
         bot.send_message(message.chat.id, START_MESSAGE)
     except TypeError as error:
         logger.error(f"{error}: {LOG_DEBUG_BOT_ERROE_MESSAGE}'{message.text}'")
+    data_for_database["user_id"] = message.from_user.id
     send = bot.send_message(message.chat.id, "Напишите ваше имя")
     bot.register_next_step_handler(send, get_user_first_name)
 
@@ -108,8 +109,10 @@ def get_user_email(message):
     if validate_email(message.text):
         data_for_database["email"] = message.text
     else:
-        bot.send_message(message.chat.id, "Возможно вы допустили ошибку "
-                                          "в emeil, начните сначала")
+        bot.send_message(
+            message.chat.id,
+            "Возможно вы допустили ошибку " "в emeil, начните сначала",
+        )
         quit()
     send = bot.send_message(message.chat.id, "Напишите ваш номер телефона")
     try:
@@ -145,6 +148,7 @@ def get_user_date(message):
     data_for_database["date"] = message.text
 
     adding_data_database(
+        user_id=data_for_database["user_id"],
         first_name=data_for_database["first_name"],
         last_name=data_for_database["last_name"],
         email=data_for_database["email"],
@@ -155,7 +159,7 @@ def get_user_date(message):
     btnok = types.KeyboardButton("/Ок")
     markup.add(btnok)
     send = bot.send_message(
-        message.chat.id, 'Нажмите кнопку /Ок', reply_markup=markup
+        message.chat.id, "Нажмите кнопку /Ок", reply_markup=markup
     )
     try:
         bot.register_next_step_handler(send, autocomplete)
@@ -171,6 +175,8 @@ def autocomplete(message):
     engine = create_engine("sqlite:///autocomplete.db", echo=False)
     session = Session(engine)
 
+    USER_ID = message.from_user.id
+
     try:
         URL_FORM = os.getenv("URL_FORM")
     except KeyError as error:
@@ -180,31 +186,50 @@ def autocomplete(message):
         quit()
     try:
         FIRST_NAME = (
-            session.query(User.first_name).order_by(User.id.desc()).first()[0]
+            session.query(User.first_name)
+            .filter(User.user_id == USER_ID)
+            .order_by(User.id.desc())
+            .first()[0]
         )
     except IndexError as error:
         logger.critical(f"Не получилось достать данные из базы: {error}!")
         quit()
     try:
         LAST_NAME = (
-            session.query(User.last_name).order_by(User.id.desc()).first()[0]
+            session.query(User.last_name)
+            .filter(User.user_id == USER_ID)
+            .order_by(User.id.desc())
+            .first()[0]
         )
     except IndexError as error:
         logger.critical(f"Не получилось достать данные из базы: {error}!")
         quit()
     try:
-        EMAIL = session.query(User.email).order_by(User.id.desc()).first()[0]
+        EMAIL = (
+            session.query(User.email)
+            .filter(User.user_id == USER_ID)
+            .order_by(User.id.desc())
+            .first()[0]
+        )
     except IndexError as error:
         logger.critical(f"Не получилось достать данные из базы: {error}!")
         quit()
     try:
-        PHONE = session.query(User.phone).order_by(User.id.desc()).first()[0]
+        PHONE = (
+            session.query(User.phone)
+            .filter(User.user_id == USER_ID)
+            .order_by(User.id.desc())
+            .first()[0]
+        )
     except IndexError as error:
         logger.critical(f"Не получилось достать данные из базы: {error}!")
         quit()
     try:
         DATE_IN_BD = (
-            session.query(User.date).order_by(User.id.desc()).first()[0]
+            session.query(User.date)
+            .filter(User.user_id == USER_ID)
+            .order_by(User.id.desc())
+            .first()[0]
         )
     except IndexError as error:
         logger.critical(f"Не получилось достать данные из базы: {error}!")
@@ -213,8 +238,8 @@ def autocomplete(message):
     MONTH = DATE_IN_BD.month
     YEAR = str(DATE_IN_BD.year)
     DATE_NOW = datetime.datetime.today().strftime("%Y-%m-%d-%H-%M")
-    CHAT_ID = str(message.chat.id)
-    NAME_SCREEN = "./screenshot/" + DATE_NOW + CHAT_ID + ".png"
+    USER_ID_STR = str(USER_ID)
+    NAME_SCREEN = "./screenshot/" + DATE_NOW + USER_ID_STR + ".png"
 
     def filling_field(element, value):
         """функция принимает на вход элемен который обозначает поле для ввода
@@ -227,8 +252,10 @@ def autocomplete(message):
     if not os.path.isdir("screenshot"):
         os.mkdir("screenshot")
 
-    logger.info("Проверка и установка (или обновление) драйвера"
-                "для Chrome через DriverManager.")
+    logger.info(
+        "Проверка и установка (или обновление) драйвера"
+        "для Chrome через DriverManager."
+    )
     service = Service(executable_path=ChromeDriverManager().install())
 
     logger.info("Запуск веб-драйвера для Chrome.")

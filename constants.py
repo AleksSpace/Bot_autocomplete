@@ -2,7 +2,7 @@ START_MESSAGE = (
     "Привет, я бот автозаполнения формы."
     " Для автозаполнения мне нужно знать кое-какую информацию о вас"
 )
-PAUSE_DURATION_SECONDS = 1
+PAUSE_DURATION_SECONDS = 2
 LOG_DEBUG_BOT_MESSAGE = "Попытка отправить сообщение "
 LOG_DEBUG_BOT_GET_MESSAGE = "Попытка получить текст сообщения: "
 LOG_DEBUG_BOT_ERROE_MESSAGE = "Ошибка отправки сообщения: "

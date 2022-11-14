@@ -28,6 +28,7 @@ Base = declarative_base(cls=PreBase)
 # приватный атрибут __tablename__ и атрибут id.
 # Описываем модель:
 class User(Base):
+    user_id = Column(String)
     first_name = Column(String)
     last_name = Column(String(200))
     email = Column(String(200))
@@ -50,6 +51,7 @@ def adding_data_database(**kwargs):
         fields_name[field] = value
 
     user = User(
+        user_id=fields_name["user_id"],
         first_name=fields_name["first_name"],
         last_name=fields_name["last_name"],
         email=fields_name["email"],

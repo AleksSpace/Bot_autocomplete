@@ -8,19 +8,22 @@ import telebot
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver import ActionChains
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.select import Select
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from telebot import types
 from validate_email import validate_email
-from webdriver_manager.chrome import ChromeDriverManager
 
-from constants import (LOG_DEBUG_BOT_ERROE_MESSAGE,
-                       LOG_DEBUG_BOT_ERROR_OPEN_FILE,
-                       LOG_DEBUG_BOT_GET_MESSAGE, LOG_DEBUG_BOT_MESSAGE,
-                       PAUSE_DURATION_SECONDS, START_MESSAGE)
+from constants import (
+    LOG_DEBUG_BOT_ERROE_MESSAGE,
+    LOG_DEBUG_BOT_ERROR_OPEN_FILE,
+    LOG_DEBUG_BOT_GET_MESSAGE,
+    LOG_DEBUG_BOT_MESSAGE,
+    PAUSE_DURATION_SECONDS,
+    START_MESSAGE,
+)
 from database import User, adding_data_database
 
 load_dotenv()
@@ -256,10 +259,10 @@ def autocomplete(message):
         "Проверка и установка (или обновление) драйвера"
         "для Chrome через DriverManager."
     )
-    service = Service(executable_path=ChromeDriverManager().install())
-
-    logger.info("Запуск веб-драйвера для Chrome.")
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Remote(
+        "http://selenium:4444/wd/hub",
+        desired_capabilities=DesiredCapabilities.CHROME,
+    )
 
     logger.info(f"Открытие страницы по адресу: {URL_FORM}")
     driver.get(URL_FORM)
@@ -358,7 +361,7 @@ def autocomplete(message):
         with open(NAME_SCREEN, "rb") as f:
             bot.send_photo(message.chat.id, f)
     except TypeError as error:
-        logger.error(LOG_DEBUG_BOT_ERROR_OPEN_FILE)
+        logger.error(f"{error} {LOG_DEBUG_BOT_ERROR_OPEN_FILE}")
 
 
 if __name__ == "__main__":

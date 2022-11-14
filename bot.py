@@ -265,7 +265,12 @@ def autocomplete(message):
     )
 
     logger.info(f"Открытие страницы по адресу: {URL_FORM}")
-    driver.get(URL_FORM)
+    try:
+        driver.get(URL_FORM)
+    except Exception as error:
+        logger.critical(
+            f"{error}: Сайт временно недоступен, попробуйте позже!"
+        )
 
     logger.info("Развёртывание окна на полный экран.")
     driver.maximize_window()

@@ -10,6 +10,14 @@ SSH - git@github.com:AleksSpace/bot_autocomplete.git
 GitHub CLI - gh repo clone AleksSpace/bot_autocomplete
 ```
 
+## Создайте и активируйте виртуальное окружение
+```
+python -m venv venv
+```
+```
+. venv/Scripts/activate
+```
+
 ## Обновите менеджер пакетов pip и установите зависимости из файла requirements.txt
 Обновить менеджер пакетов pip
 ```
